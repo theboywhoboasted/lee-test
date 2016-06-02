@@ -1,5 +1,8 @@
-library(systemfit)
+# library(systemfit)
+# It was expected to use this, but it wasn't needed
 
+
+# main function to give t-statistic for test
 lee_one_break_test <- function(yt,lambda){
   l <- length(yt)
   tb <- floor(lambda*l)
@@ -23,18 +26,31 @@ lee_one_break_test <- function(yt,lambda){
   return(tval)
 }
 
-tvals <- numeric(500)
-times <- integer(500)
-for (i in 1:500){
+
+# syntax to get statistic for a series at a given breakpoint
+lee_one_break_test(rnorm(1000),0.61)
+
+
+# run some simulations to get distribution of statistic
+# distribution to be used for critical values
+num_sim <- 500
+tvals <- numeric(num_sim)
+times <- integer(num_sim)
+for (i in 1:num_sim){
+  
+  # assumed these coefficients (completely arbitrary)
+  # TODO: check if test sensitive to choice of coefficients
   d1 <- 1
   d2 <- 2
   d3 <- 3
   d4 <- 4
   phi <- 1
-  et <- rnorm(100)
-  xt <- cumsum(et)
+  
+  # create a time series of 100 points with break at 50
   l <- 100
   tb <- 50
+  et <- rnorm(l)
+  xt <- cumsum(et)
   one <- 1
   time <- (1:l)
   dt <- one
@@ -43,12 +59,17 @@ for (i in 1:500){
     dt[t] <- 0
     dtt[t] <- 0
   }
+  
+  # generate yt
   yt <- d1*one + d2*time + d3*dt + d4*dtt + phi*xt
   
-  min_t <- 1000
+  # get t-stat for different potential breakpoints
+  # choose the one with best statistic
+  # store the calculated breakpoint and statistic
+  min_t <- 1000 #arbitrary large value
   min_time <- 0
-  for (tb in 1:100){
-    t <- lee_one_break_test(yt,tb/100)
+  for (tb in 1:l){
+    t <- lee_one_break_test(yt,tb/l)
     if (t<min_t){
       min_t <- t
       min_time <- tb
@@ -56,10 +77,9 @@ for (i in 1:500){
   }
   tvals[i] <- min_t
   times[i] <- min_time
-  print(i)
+  # print(i)
 }
 
-lee_one_break_test(rnorm(1000),0.61)
 
 #   eq1 <- y ~ ylag + xlag + xl + yl
 #   eq2 <- x ~ ylag + xlag + xl + yl
